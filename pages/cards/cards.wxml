@@ -1,0 +1,46 @@
+<view class="page">
+  <scroll-view
+    class="scroll"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    scroll-into-view="{{intoView}}"
+    scroll-with-animation
+  >
+    <view class="grid cols-{{cols}}">
+      <view
+        wx:for="{{cards}}"
+        wx:key="slot"
+        id="card-{{item.slot}}"
+        class="card {{item.flipped ? 'flipped' : ''}} {{item.dim ? 'dim' : ''}}"
+        data-index="{{item.slot}}"
+        hover-class="{{phase === 'ready' ? 'card-hover' : ''}}"
+        bindtap="onPick"
+      >
+        <view class="card-inner">
+          <view class="face face-back">
+            <view class="back-mat">
+              <view class="back-core">
+                <view class="back-gem"></view>
+              </view>
+            </view>
+          </view>
+          <view class="face face-front">
+            <view class="front-line"></view>
+            <text class="face-text">{{item.text}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  <view class="slip-slot">
+    <view class="slip" wx:if="{{phase === 'settled'}}">
+      <text class="slip-kicker">就这个</text>
+      <text class="slip-text {{resultClass}}">{{resultText}}</text>
+    </view>
+    <text wx:else class="prompt">{{hint}}</text>
+  </view>
+  <view class="dock" wx:if="{{phase === 'settled'}}">
+    <button class="btn" hover-class="btn-hover" bindtap="onAgain">重新抽</button>
+  </view>
+</view>

@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "纠结决定器",
+  "navigationBarBackgroundColor": "#f6f0e6",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#f6f0e6",
+  "backgroundColorTop": "#f6f0e6",
+  "backgroundColorBottom": "#f6f0e6",
+  "disableScroll": true
+}

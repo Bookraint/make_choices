@@ -1,0 +1,130 @@
+<wxs module="fmt">
+function pad(n) {
+  var value = n + 1
+  return value < 10 ? '0' + value : '' + value
+}
+module.exports.pad = pad
+</wxs>
+
+<view class="page">
+  <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="content">
+      <view class="intro">
+        <text class="intro-kicker">纠结决定器</text>
+        <text class="intro-title">选一种抽法</text>
+        <text class="intro-sub">转盘按占比转。翻牌自己选一张，抽签摇一摇出一支。</text>
+      </view>
+
+      <view class="methods">
+        <view
+          class="method {{method === 'wheel' ? 'on' : ''}}"
+          data-method="wheel"
+          hover-class="method-hover"
+          bindtap="onMethod"
+        >
+          <view class="mini-wheel"></view>
+          <text class="method-name">转盘</text>
+          <text class="method-desc">扇区有大有小</text>
+        </view>
+        <view
+          class="method {{method === 'cards' ? 'on' : ''}}"
+          data-method="cards"
+          hover-class="method-hover"
+          bindtap="onMethod"
+        >
+          <view class="mini-cards">
+            <view class="mini-card"></view>
+            <view class="mini-card front"></view>
+          </view>
+          <text class="method-name">翻牌</text>
+          <text class="method-desc">自己翻一张</text>
+        </view>
+        <view
+          class="method {{method === 'sticks' ? 'on' : ''}}"
+          data-method="sticks"
+          hover-class="method-hover"
+          bindtap="onMethod"
+        >
+          <view class="mini-cup">
+            <view class="mini-stick a"></view>
+            <view class="mini-stick b"></view>
+            <view class="mini-stick c"></view>
+            <view class="mini-body"></view>
+          </view>
+          <text class="method-name">抽签</text>
+          <text class="method-desc">摇一摇出签</text>
+        </view>
+      </view>
+
+      <view class="section-head">
+        <text class="section-title">选项</text>
+        <text class="section-meta">{{rows.length}}/30</text>
+      </view>
+
+      <view class="list">
+        <view wx:for="{{rows}}" wx:key="id" class="opt">
+          <view class="opt-main">
+            <text class="opt-index" style="{{item.color ? 'color:' + item.color : ''}}">{{fmt.pad(index)}}</text>
+            <input
+              class="opt-input"
+              value="{{item.text}}"
+              maxlength="40"
+              placeholder="{{index == 0 ? '例如：今晚吃拉面' : (index == 1 ? '例如：今晚吃沙拉' : '再写一个选项')}}"
+              placeholder-class="opt-ph"
+              data-id="{{item.id}}"
+              cursor-spacing="80"
+              confirm-type="done"
+              bindinput="onInput"
+            />
+            <view
+              wx:if="{{showDelete}}"
+              class="opt-remove"
+              data-id="{{item.id}}"
+              catchtap="onRemove"
+            >删除</view>
+          </view>
+          <view wx:if="{{item.showWeight}}" class="bias">
+            <view
+              id="track-{{item.id}}"
+              class="track"
+              data-index="{{index}}"
+              catchtouchstart="onWeightStart"
+              catchtouchmove="onWeightMove"
+              catchtouchend="onWeightEnd"
+              catchtouchcancel="onWeightEnd"
+            >
+              <view class="track-rail"></view>
+              <view class="track-fill" style="width: {{item.percent}}%; background: {{item.color}};"></view>
+              <view class="knob" style="left: {{item.percent}}%; border-color: {{item.color}};"></view>
+            </view>
+            <text class="pct">{{item.percent}}%</text>
+          </view>
+        </view>
+      </view>
+
+      <view
+        wx:if="{{canAdd}}"
+        class="add"
+        hover-class="add-hover"
+        hover-stay-time="80"
+        bindtap="onAdd"
+      >
+        <text class="add-plus">+</text>
+        <text>添加选项</text>
+      </view>
+      <view wx:else class="limit">最多 30 个选项</view>
+
+      <view wx:if="{{validCount >= 2}}" class="even" bindtap="onEven">恢复平均</view>
+    </view>
+  </scroll-view>
+
+  <view class="dock">
+    <text class="hint">{{hint}}</text>
+    <button
+      class="btn"
+      disabled="{{buttonDisabled}}"
+      hover-class="btn-hover"
+      bindtap="onStart"
+    >{{buttonText}}</button>
+  </view>
+</view>

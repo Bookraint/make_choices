@@ -1,0 +1,23 @@
+<view class="page">
+  <view class="stage">
+    <view class="wheel-box">
+      <view class="pointer"></view>
+      <view class="wheel-shadow"></view>
+      <canvas type="2d" id="wheel" class="wheel-canvas"></canvas>
+    </view>
+  </view>
+  <view class="slip-slot">
+    <view class="slip" wx:if="{{phase === 'settled'}}">
+      <text class="slip-kicker">就这个</text>
+      <text class="slip-text {{resultClass}}">{{resultText}}</text>
+    </view>
+  </view>
+  <view class="dock">
+    <button
+      class="btn {{busy ? 'busy' : ''}}"
+      disabled="{{busy}}"
+      hover-class="{{busy ? 'none' : 'btn-hover'}}"
+      bindtap="onAgain"
+    >{{buttonText}}</button>
+  </view>
+</view>

@@ -1,0 +1,32 @@
+<view class="page">
+  <view class="stage">
+    <view class="cup {{shaking ? 'shake' : ''}}">
+      <view class="sticks">
+        <view
+          wx:for="{{sticks}}"
+          wx:key="slot"
+          class="stick {{item.up ? 'up' : ''}}"
+          style="height: {{item.length}}rpx; background: {{item.color}};"
+        ></view>
+      </view>
+      <view class="cup-body">
+        <view class="cup-lip"></view>
+      </view>
+    </view>
+  </view>
+  <view class="slip-slot">
+    <view class="slip" wx:if="{{phase === 'settled'}}">
+      <text class="slip-kicker">就这个</text>
+      <text class="slip-text {{resultClass}}">{{resultText}}</text>
+    </view>
+    <text wx:else class="prompt">{{shaking ? '签筒在晃' : '摇一摇，让一支签跳出来'}}</text>
+  </view>
+  <view class="dock">
+    <button
+      class="btn {{busy ? 'busy' : ''}}"
+      disabled="{{busy}}"
+      hover-class="{{busy ? 'none' : 'btn-hover'}}"
+      bindtap="onShake"
+    >{{buttonText}}</button>
+  </view>
+</view>
