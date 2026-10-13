@@ -1,35 +1,46 @@
-function randomUnit() {
+function randomUnits(count) {
   return new Promise((resolve) => {
-    if (typeof wx.getRandomValues !== 'function') {
-      resolve(Math.random())
+    if (count <= 0) {
+      resolve([])
+      return
+    }
+    const fallback = () => resolve(Array.from({ length: count }, () => Math.random()))
+    if (typeof wx === 'undefined' || typeof wx.getRandomValues !== 'function') {
+      fallback()
       return
     }
     wx.getRandomValues({
-      length: 4,
+      length: count * 4,
       success(res) {
         try {
           const view = new Uint32Array(res.randomValues)
-          resolve(view[0] / 4294967296)
+          resolve(Array.from(view, (value) => value / 4294967296))
         } catch (err) {
-          resolve(Math.random())
+          fallback()
         }
       },
       fail() {
-        resolve(Math.random())
+        fallback()
       },
     })
   })
 }
 
+function randomUnit() {
+  return randomUnits(1).then((values) => values[0])
+}
+
 function shuffle(list) {
   const items = list.slice()
-  for (let i = items.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const swap = items[i]
-    items[i] = items[j]
-    items[j] = swap
-  }
-  return items
+  return randomUnits(Math.max(0, items.length - 1)).then((values) => {
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(values[items.length - 1 - i] * (i + 1))
+      const swap = items[i]
+      items[i] = items[j]
+      items[j] = swap
+    }
+    return items
+  })
 }
 
 function pickWeighted(weights, random01) {

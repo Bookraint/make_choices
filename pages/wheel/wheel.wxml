@@ -8,7 +8,7 @@
   </view>
   <view class="slip-slot">
     <view class="slip" wx:if="{{phase === 'settled'}}">
-      <text class="slip-kicker">就这个</text>
+      <text class="slip-kicker">就它了</text>
       <text class="slip-text {{resultClass}}">{{resultText}}</text>
     </view>
   </view>

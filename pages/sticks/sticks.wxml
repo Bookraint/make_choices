@@ -16,7 +16,7 @@
   </view>
   <view class="slip-slot">
     <view class="slip" wx:if="{{phase === 'settled'}}">
-      <text class="slip-kicker">就这个</text>
+      <text class="slip-kicker">就它了</text>
       <text class="slip-text {{resultClass}}">{{resultText}}</text>
     </view>
     <text wx:else class="prompt">{{shaking ? '签筒在晃' : '摇一摇，让一支签跳出来'}}</text>

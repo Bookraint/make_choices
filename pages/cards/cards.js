@@ -14,6 +14,8 @@ Page({
   },
 
   onLoad() {
+    this._alive = true
+    this._dealToken = 0
     const current = session.read()
     if (!current || !current.options || current.options.length < 2) {
       this.bad = true
@@ -26,19 +28,33 @@ Page({
     this.deal()
   },
 
+  onUnload() {
+    this._alive = false
+    this._dealToken += 1
+  },
+
   deal() {
-    this.deck = shuffle(this.options)
     this.setData({
-      phase: 'ready',
-      hint: '点一张翻开',
+      phase: 'dealing',
+      hint: '正在洗牌',
       resultText: '',
       intoView: '',
-      cards: this.deck.map((item, index) => ({
-        slot: index,
-        text: item.text,
-        flipped: false,
-        dim: false,
-      })),
+      cards: [],
+    })
+    const token = ++this._dealToken
+    shuffle(this.options).then((deck) => {
+      if (!this._alive || token !== this._dealToken) return
+      this.deck = deck
+      this.setData({
+        phase: 'ready',
+        hint: '点一张翻开',
+        cards: deck.map((item, index) => ({
+          slot: index,
+          text: item.text,
+          flipped: false,
+          dim: false,
+        })),
+      })
     })
   },
 

@@ -17,7 +17,7 @@ Page({
     this._locking = false
     this._token = 0
     this._angle = 0
-    this.timer = null
+    this.frameId = null
     const current = session.read()
     if (!current || !current.options || current.options.length < 2) {
       this.bad = true
@@ -43,9 +43,9 @@ Page({
   },
 
   clearSpin() {
-    if (this.timer) {
-      clearTimeout(this.timer)
-      this.timer = null
+    if (this.frameId !== null && this.canvas) {
+      this.canvas.cancelAnimationFrame(this.frameId)
+      this.frameId = null
     }
     this._token += 1
   },
@@ -170,12 +170,12 @@ Page({
       this._angle = angle
       this.renderWheel(angle)
       if (progress < 1) {
-        this.timer = setTimeout(step, 16)
+        this.frameId = this.canvas.requestAnimationFrame(step)
         return
       }
       this._angle = target
       this.renderWheel(target)
-      this.timer = null
+      this.frameId = null
       this._locking = false
       this.setData({
         busy: false,

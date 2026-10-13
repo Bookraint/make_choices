@@ -25,7 +25,7 @@ function present(rows, method) {
       id: row.id,
       text: row.text,
       weight: row.weight,
-      showWeight: filled && activeCount >= 2,
+      showWeight: method !== 'cards' && filled && activeCount >= 2,
       percent: percents[index],
       color,
     }
@@ -38,7 +38,11 @@ function present(rows, method) {
     showDelete: rows.length > 2,
     buttonDisabled: validCount < 2,
     buttonText: BUTTONS[method] || BUTTONS.wheel,
-    hint: validCount < 2 ? '至少写下两个选项' : '拖动圆点，偏向会自动换成占比',
+    hint: validCount < 2
+      ? '至少写下两个选项'
+      : method === 'cards'
+        ? '翻牌为等概率'
+        : '拖动圆点，偏向会自动换成占比',
   }
 }
 
@@ -58,11 +62,19 @@ Page({
     hint: '至少写下两个选项',
   },
 
+  onLoad() {
+    this._rows = this.data.rows.map((row) => ({
+      id: row.id,
+      text: row.text,
+      weight: row.weight,
+    }))
+  },
+
   onInput(e) {
     const id = Number(e.currentTarget.dataset.id)
     const text = e.detail.value
-    const previous = activeIds(this.data.rows)
-    let rows = this.data.rows.map((row) => ({
+    const previous = activeIds(this._rows)
+    let rows = this._rows.map((row) => ({
       id: row.id,
       text: row.id === id ? text : row.text,
       weight: row.weight,
@@ -70,7 +82,7 @@ Page({
     const next = activeIds(rows)
     const changed = previous.join(',') !== next.join(',')
     if (changed) rows = refit(rows, previous)
-    this.data.rows = rows
+    this._rows = rows
     const view = present(rows, this.data.method)
     if (
       !changed &&
@@ -94,51 +106,51 @@ Page({
   },
 
   onAdd() {
-    if (this.data.rows.length >= 30) return
+    if (this._rows.length >= 30) return
     const id = this.data.nextId
-    const rows = this.data.rows.concat([{ id, text: '', weight: 1 }]).map((row) => ({
+    const rows = this._rows.concat([{ id, text: '', weight: 1 }]).map((row) => ({
       id: row.id,
       text: row.text,
       weight: row.weight,
     }))
+    this._rows = rows
     this.setData(Object.assign({ nextId: id + 1 }, present(rows, this.data.method)))
   },
 
   onRemove(e) {
-    if (this.data.rows.length <= 2) return
+    if (this._rows.length <= 2) return
     const id = Number(e.currentTarget.dataset.id)
-    const previous = activeIds(this.data.rows)
-    const removed = this.data.rows.find((row) => row.id === id)
-    let rows = this.data.rows.filter((row) => row.id !== id).map((row) => ({
+    const previous = activeIds(this._rows)
+    const removed = this._rows.find((row) => row.id === id)
+    let rows = this._rows.filter((row) => row.id !== id).map((row) => ({
       id: row.id,
       text: row.text,
       weight: row.weight,
     }))
     if (removed && removed.text.trim()) rows = refit(rows, previous)
+    this._rows = rows
     this.setData(present(rows, this.data.method))
   },
 
   onEven() {
-    const rows = equalize(this.data.rows.map((row) => ({
+    const rows = equalize(this._rows.map((row) => ({
       id: row.id,
       text: row.text,
       weight: row.weight,
     })))
+    this._rows = rows
     this.setData(present(rows, this.data.method))
   },
 
   onMethod(e) {
     const method = e.currentTarget.dataset.method
     if (!BUTTONS[method] || method === this.data.method) return
-    this.setData({
-      method,
-      buttonText: BUTTONS[method],
-    })
+    this.setData(Object.assign({ method }, present(this._rows, method)))
   },
 
   onWeightStart(e) {
     const index = Number(e.currentTarget.dataset.index)
-    const row = this.data.rows[index]
+    const row = this._rows[index]
     if (!row || !row.text.trim()) return
     wx.hideKeyboard()
     this.createSelectorQuery().select('#track-' + row.id).boundingClientRect((rect) => {
@@ -163,16 +175,17 @@ Page({
     let ratio = (clientX - track.left) / track.width
     if (ratio < 0) ratio = 0
     if (ratio > 1) ratio = 1
-    const rows = setShare(this.data.rows.map((row) => ({
+    const rows = setShare(this._rows.map((row) => ({
       id: row.id,
       text: row.text,
       weight: row.weight,
     })), track.index, ratio)
+    this._rows = rows
     this.setData(present(rows, this.data.method))
   },
 
   onStart() {
-    const source = this.data.rows.map((row) => ({
+    const source = this._rows.map((row) => ({
       id: row.id,
       text: row.text,
       weight: row.weight || 1,
